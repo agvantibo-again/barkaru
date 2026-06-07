@@ -4,6 +4,10 @@ import random
 import logging
 import typing
 import os
+import asyncio
+import discord
+from discord.ext import commands
+from dotenv import load_dotenv
 
 cardinal_stats = [
     "exogrit",
@@ -27,11 +31,15 @@ explosion_bites = [
 ]
 roll_limit = 22
 
-
+load_dotenv()
 log_level = os.environ.get("LOGLEVEL", "INFO").upper()
-logging.basicConfig(filename="barkaru.log.txt")
+bot_token = os.environ.get("QUIN_TOKEN", "")
+# logging.basicConfig(filename="barkaru.log.txt")
 log = logging.getLogger(__name__)
 log.setLevel(log_level)
+intents = discord.Intents.default()
+intents.message.content = True
+bot = commands.Bot(command_prefix="!", intents=intents)
 
 
 class Prophet:
@@ -62,10 +70,10 @@ class Prophet:
         exploded = False
         while n_rolls < roll_limit and stat > 0:
             rolls.append(random.randint(0, prophet.die_sides - 1))
-            if not exploded:
-                stat -= 1
+            stat -= 1
             if rolls[-1] in prophet.stats.get(stat_kind):
                 exploded = True
+                stat += 1
             else:
                 exploded = False
             n_rolls += 1
@@ -120,6 +128,16 @@ class Prophet:
         return "\n".join(output)
 
 
+@bot.event
+async def on_ready():
+    log.info(f"Logged in as {bot.user}")
+
+
+@bot.command()
+async def ping(ctx):
+    await ctx.send("Ping from Barkaru OwO")
+
+
 def load_quin_prophet_stats(path: str) -> dict:
     prophets_stats = dict()
     with open(path) as file:
@@ -147,7 +165,7 @@ def parse_argv1(raw_args: list, prophets: dict) -> dict:
     if stat_kind in cardinal_stats:
         arguments["stat_kind"] = stat_kind
     else:
-        raise ValueError(f'"{stat_kind}" isn\'t a stat I know :')
+        raise ValueError(f'"{stat_kind}" isn\'t a stat I know :<')
     if by_prophet in prophets and against_prophet in prophets:
         arguments["by_prophet"] = prophets[by_prophet]
         arguments["against_prophet"] = prophets[against_prophet]
@@ -161,7 +179,28 @@ def parse_argv1(raw_args: list, prophets: dict) -> dict:
     return arguments
 
 
-def main():
+@bot.command()
+async def roll(
+    ctx,
+    stat_kind: str,
+    by_prophet: str,
+    by_stat: str,
+    against_prophet: str,
+    against_stat: str,
+):
+    try:
+        argv = parse_argv1(
+            (stat_kind, by_prophet, by_stat, against_prophet, against_stat), prophets
+        )
+        result = prophets[argv["by_prophet"]].do_roll(**argv)
+        await ctx.send(result)
+    except Exception as exception:
+        await ctx.send(f"Error! {str(e)}")
+
+
+async def main():
+    global prophets
+
     log.info("Hello from barkaru!")
     prophets = load_quin_prophet_stats("prophets.txt")
     prophets["nihil"] = Prophet.__new__(Prophet)
@@ -169,15 +208,9 @@ def main():
     for prophet in prophets.values():
         log.debug(prophet)
 
-    while True:
-        raw_input = input("barkaru query> ").split()
-        log.debug(f"Raw input: {raw_input}")
-        argv = parse_argv1(raw_input, prophets)
-        log.debug(f"Parsed arguments: {argv}")
-        print(prophets[argv["by_prophet"].cname].do_roll(**argv))
-
-        print()
+    async with bot:
+        await bot.start(bot_token)
 
 
 if __name__ == "__main__":
-    main()
+    asyncio.run(main())
