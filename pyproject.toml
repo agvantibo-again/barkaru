@@ -1,7 +1,9 @@
 [project]
 name = "barkaru"
 version = "0.1.0"
-description = "Add your description here"
+description = "Dice roller system for the amazing Quindlyn"
 readme = "README.md"
 requires-python = ">=3.13"
-dependencies = []
+dependencies = [
+    "discord-py>=2.7.1",
+]
