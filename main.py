@@ -1,5 +1,182 @@
+#!/usr/bin/env python3
+
+import random
+import logging
+import typing
+import os
+
+cardinal_stats = [
+    "exogrit",
+    "shadelust",
+    "neocognition",
+    "wardbloom",
+    "paralleloquence",
+    "chronacumen",
+    "aethertune",
+]
+explosion_bites = [
+    "EXPLOSION",
+    "KABOOM",
+    "BLAST",
+    "BLAMO",
+    "KAPOW",
+    "KRAKOW",
+    "EXPLODED",
+    "DETONATED",
+    "DICE EXPLOSION",
+]
+roll_limit = 22
+
+
+log_level = os.environ.get("LOGLEVEL", "INFO").upper()
+logging.basicConfig(filename="barkaru.log.txt")
+log = logging.getLogger(__name__)
+log.setLevel(log_level)
+
+
+class Prophet:
+    # Defaults are for nihil
+    name = "Nihil unfathomable"
+    cname = "nihil"
+    stats = dict([(stat, -1) for stat in cardinal_stats])
+    die_sides = 6
+
+    def __init__(self, new_name: str, new_cname: str, new_stats: dict):
+        self.name = new_name
+        self.cname = new_cname
+        self.stats.update(new_stats)
+
+    def canonicalize_name(name: str):
+        return name.lower()
+
+    def __repr__(self):
+        stat_spread = str()
+        for stat, value in self.stats.items():
+            stat_spread += f"\n\t{stat}: {value}"
+        return f'Prophet "{self.name}" registered as "{self.cname}"{stat_spread}'
+
+    def roll(self, prophet: typing.Self, stat_kind: str, stat: int) -> tuple:
+        n_rolls = 0
+        rolls = list()
+        explosions = 0
+        exploded = False
+        while n_rolls < roll_limit and stat > 0:
+            rolls.append(random.randint(0, prophet.die_sides - 1))
+            if not exploded:
+                stat -= 1
+            if rolls[-1] in prophet.stats.get(stat_kind):
+                exploded = True
+            else:
+                exploded = False
+            n_rolls += 1
+        return tuple(rolls)
+
+    def do_roll(
+        self,
+        by_prophet: typing.Self,
+        stat_kind: str,
+        by_stat: int,
+        against_prophet: typing.Self,
+        against_stat: int,
+    ) -> str:
+        output = list()
+        by_rolls = self.roll(by_prophet, stat_kind, by_stat)
+        if len(by_rolls) == 0:
+            output.append(f"You rolled nothing. You suck at {stat_kind}.")
+        else:
+            aggregate_line_0 = "You rolled"
+            aggregate_line = aggregate_line_0
+            for roll in by_rolls:
+                aggregate_line += f" {roll}"
+                log.debug(f"Comparing roll {roll} with {by_prophet.stats}")
+                if roll in by_prophet.stats.get(stat_kind):
+                    aggregate_line += f"... {random.choice(explosion_bites)}!"
+            output.append(aggregate_line)
+            output.append(f"In total: {sum(by_rolls)}. Well done.")
+
+        if against_prophet.cname == "nihil":
+            against_rolls = [against_stat]
+            output.append(f"You're going up against at least a {against_stat}!")
+        else:
+            against_rolls = self.roll(against_prophet, stat_kind, against_stat)
+            if len(by_rolls) == 0:
+                output.append(f"They rolled nothing. They suck.")
+            else:
+                aggregate_line_0 = "They rolled"
+                aggregate_line = aggregate_line_0
+                for roll in against_rolls:
+                    aggregate_line += f" {roll}"
+                    if roll in by_prophet.stats.get(stat_kind):
+                        aggregate_line += f"... {random.choice(explosion_bites)}!"
+                output.append(aggregate_line)
+                output.append(f"In total: {sum(against_rolls)}")
+        if sum(by_rolls) > sum(against_rolls):
+            output.append(f"Victory! ({sum(by_rolls)} > {sum(against_rolls)})")
+        elif sum(by_rolls) < sum(against_rolls):
+            output.append(f"Defeat. ({sum(by_rolls)} < {sum(against_rolls)})")
+        else:
+            output.append(f"Evenly matched.")
+
+        return "\n".join(output)
+
+
+def load_quin_prophet_stats(path: str) -> dict:
+    prophets_stats = dict()
+    with open(path) as file:
+        for line in file.readlines():
+            prophet_name, stats_string = line.split()
+            prophets_stats[prophet_name] = stats_string
+
+    prophets = dict()
+    for prophet_name, stats_string in prophets_stats.items():
+        statblock = dict()
+        for i_stat in range(len(stats_string)):
+            statblock[cardinal_stats[i_stat]] = [int(stats_string[i_stat])]
+        prophet_cname = Prophet.canonicalize_name(prophet_name)
+        prophets[prophet_cname] = Prophet(prophet_name, prophet_cname, statblock)
+
+    return prophets
+
+
+# Argument template: stat_kind by_prophet stat against_prophet stat
+def parse_argv1(raw_args: list, prophets: dict) -> dict:
+    arguments = dict()
+    if len(raw_args) != 5:
+        raise ValueError(f"Unexpected number of arguments: {len(raw_args)}")
+    stat_kind, by_prophet, by_stat, against_prophet, against_stat = raw_args[:5]
+    if stat_kind in cardinal_stats:
+        arguments["stat_kind"] = stat_kind
+    else:
+        raise ValueError(f'"{stat_kind}" isn\'t a stat I know :')
+    if by_prophet in prophets and against_prophet in prophets:
+        arguments["by_prophet"] = prophets[by_prophet]
+        arguments["against_prophet"] = prophets[against_prophet]
+    else:
+        raise ValueError(
+            f'Prophets "{by_prophet}" or "{against_prophet}" aren\'t the ones I know :<'
+        )
+    arguments["by_stat"] = int(by_stat)
+    arguments["against_stat"] = int(against_stat)
+
+    return arguments
+
+
 def main():
-    print("Hello from barkaru!")
+    log.info("Hello from barkaru!")
+    prophets = load_quin_prophet_stats("prophets.txt")
+    prophets["nihil"] = Prophet.__new__(Prophet)
+    log.info(f"Loaded {len(prophets)} prophets!")
+    for prophet in prophets.values():
+        log.debug(prophet)
+
+    while True:
+        raw_input = input("barkaru query> ").split()
+        log.debug(f"Raw input: {raw_input}")
+        argv = parse_argv1(raw_input, prophets)
+        log.debug(f"Parsed arguments: {argv}")
+        print(prophets[argv["by_prophet"].cname].do_roll(**argv))
+
+        print()
 
 
 if __name__ == "__main__":
