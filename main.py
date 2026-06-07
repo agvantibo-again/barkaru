@@ -38,7 +38,7 @@ bot_token = os.environ.get("QUIN_TOKEN", "")
 log = logging.getLogger(__name__)
 log.setLevel(log_level)
 intents = discord.Intents.default()
-intents.message.content = True
+intents.messages = True
 bot = commands.Bot(command_prefix="!", intents=intents)
 
 
