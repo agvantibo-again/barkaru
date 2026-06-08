@@ -34,7 +34,7 @@ roll_limit = 22
 load_dotenv()
 log_level = os.environ.get("LOGLEVEL", "INFO").upper()
 bot_token = os.environ.get("QUIN_TOKEN", "")
-# logging.basicConfig(filename="barkaru.log.txt")
+logging.basicConfig(filename="barkaru.log.txt")
 log = logging.getLogger(__name__)
 log.setLevel(log_level)
 intents = discord.Intents(messages=True, guilds=True, message_content=True)
@@ -194,7 +194,8 @@ async def roll(
         result = prophets[argv["by_prophet"]].do_roll(**argv)
         await ctx.send(result)
     except Exception as exception:
-        await ctx.send(f"Error! {str(e)}")
+        log.warning(exception)
+        await ctx.send(f"Error! {str(exception)}")
 
 
 async def main():
