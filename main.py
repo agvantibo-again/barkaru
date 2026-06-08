@@ -201,7 +201,7 @@ async def roll(
         argv = parse_argv1(
             (stat_kind, by_prophet, by_stat, against_prophet, against_stat), prophets
         )
-        result = prophets[argv["by_prophet"]].do_roll(**argv)
+        result = prophets[argv["by_prophet"].cname].do_roll(**argv)
         await ctx.send(result)
     except Exception as exception:
         err_string = f"Error!\n{str(exception)}\nInvoked with:\n{argv}"
