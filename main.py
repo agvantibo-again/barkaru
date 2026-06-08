@@ -172,8 +172,7 @@ def fuzzy_match(ingress: str, against: list) -> tuple:
         for i_word in range(len(matches)):
             if matches[i_word][i_char] != ingress[i_char]:
                 droplist.append(i_word)
-        for i_word in droplist:
-            matches.pop(i_word)
+        matches = list(filter(lambda a: a not in droplist, matches))
         if len(matches) == 0:
             return (None, f"No matches found for {ingress}")
         if len(matches) == 1:
