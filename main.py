@@ -198,6 +198,9 @@ def parse_argv1(raw_args: list, prophets: dict) -> dict:
     if not against_prophet[0]:
         raise ValueError(f"Trouble looking up Prophet: {against_prophet[1]} :<")
 
+    arguments["stat_kind"] = stat_kind[0]
+    arguments["by_prophet"] = prophets.get(by_prophet[0])
+    arguments["against_prophet"] = prophets.get(against_prophet[0])
     arguments["by_stat"] = int(by_stat)
     arguments["against_stat"] = int(against_stat)
 
