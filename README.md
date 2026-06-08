@@ -1,6 +1,9 @@
 ### Dice roller system for the amazing Quindlyn!
 Somewhat based on Armello. Reportedly
 
+#### 1.0.0!
+Mostly working! It has very nice error reporting now and the fuzzy matching seems to be idiot (me) proof.
+
 ##### Roadmap:
  - [x] Parse arguments v1 (stat prophet integer | prophet integer)
  - [x] Implement core roll logic
