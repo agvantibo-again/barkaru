@@ -51,6 +51,7 @@ class Prophet:
     def __init__(self, new_name: str, new_cname: str, new_stats: dict):
         self.name = new_name
         self.cname = new_cname
+        self.stats = self.stats.copy()
         self.stats.update(new_stats)
 
     def canonicalize_name(name: str):
