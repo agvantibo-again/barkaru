@@ -61,9 +61,9 @@ class Prophet:
 
     def __repr__(self):
         stat_spread = str()
-        for stat, value in self.stats.items():
-            stat_spread += f"\n\t{stat}: {value}"
-        return f'Prophet "{self.name}" registered as "{self.cname}"{stat_spread}'
+        for _, value in self.stats.items():
+            stat_spread += f"{value}"
+        return f'Prophet "{self.name}" registered as "{self.cname}", attuned to {stat_spread}'
 
     def roll(self, prophet: typing.Self, stat_kind: str, stat: int) -> tuple:
         """Calculate actual random die roll results"""
@@ -228,12 +228,21 @@ async def roll(
         log.warning(err_string)
         await ctx.send(err_string)
 
+
 @bot.command()
-async def prophets(
-    ctx
-):
+async def prophets(ctx):
     """Observe the Prophets 22 and their alignment"""
-    await ctx.send("\n" + "\n".join(map(str, prophets.values())))
+    await ctx.send(
+        "\n".join(
+            [
+                "```",
+                f'The values are in canonical order: {" ".join(cardinal_stats)}',
+                f'{"\n".join(map(str, prophets.values()))}',
+                "```",
+            ]
+        )
+    )
+
 
 async def main():
     global prophets
