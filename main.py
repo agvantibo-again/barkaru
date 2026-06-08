@@ -46,7 +46,7 @@ class Prophet:
     # Defaults are for nihil
     name = "Nihil unfathomable"
     cname = "nihil"
-    stats = dict([(stat, -1) for stat in cardinal_stats])
+    stats = dict([(stat, (-1,)) for stat in cardinal_stats])
     die_sides = 6
 
     def __init__(self, new_name: str, new_cname: str, new_stats: dict):
@@ -63,6 +63,8 @@ class Prophet:
         stat_spread = str()
         for _, value in self.stats.items():
             stat_spread += f"{value}"
+
+        stat_spread = stat_spread.replace(",)(", "|")
         return f'Prophet "{self.name}" registered as "{self.cname}", attuned to {stat_spread}'
 
     def roll(self, prophet: typing.Self, stat_kind: str, stat: int) -> tuple:
