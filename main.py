@@ -37,8 +37,7 @@ bot_token = os.environ.get("QUIN_TOKEN", "")
 # logging.basicConfig(filename="barkaru.log.txt")
 log = logging.getLogger(__name__)
 log.setLevel(log_level)
-intents = discord.Intents.default()
-intents.messages = True
+intents = discord.Intents(messages=True, guilds=True, message_content=True)
 bot = commands.Bot(command_prefix="!", intents=intents)
 
 
