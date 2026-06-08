@@ -232,8 +232,7 @@ async def roll(
 @bot.command()
 async def prophets(ctx):
     """Observe the Prophets 22 and their alignment"""
-    await ctx.send(
-        "\n".join(
+    prophets_string = "\n".join(
             [
                 "```",
                 f'The values are in canonical order: {" ".join(cardinal_stats)}',
@@ -241,7 +240,9 @@ async def prophets(ctx):
                 "```",
             ]
         )
-    )
+    log.debug(prophets_string)
+    log.debug(f"Length: {len(prophets_string)}")
+    await ctx.send(prophets_string)
 
 
 async def main():
