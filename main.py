@@ -195,8 +195,9 @@ async def roll(
         result = prophets[argv["by_prophet"]].do_roll(**argv)
         await ctx.send(result)
     except Exception as exception:
-        log.warning(exception)
-        await ctx.send(f"Error! {str(exception)}")
+        err_string = f"Error!\n{str(exception)}\nInvoked with:\n{argv}"
+        log.warning(err_string)
+        await ctx.send(err_string)
 
 
 async def main():
