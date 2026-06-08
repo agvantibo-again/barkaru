@@ -11,5 +11,5 @@ Mostly working! It has very nice error reporting now and the fuzzy matching seem
  - [x] Make it actually work with Discord
  - [x] Parse arguments v1.1 (stat prophet integer)
  - [ ] Implement inventory items and arguments v2
- - [ ] Implement static rolls result sprites
- - [ ] Implement animated rolls result sprites
+ - [ ] ~~Implement static rolls result sprites~~
+ - [x] Implement animated rolls result sprites
