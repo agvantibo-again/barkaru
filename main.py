@@ -163,6 +163,24 @@ def load_quin_prophet_stats(path: str) -> dict:
     return prophets
 
 
+def fuzzy_match(ingress: str, against: list) -> tuple:
+    """Make an effort to match a string against some states it should represent"""
+    """Returns a tuple of either String or None and an optional error message if None"""
+    matches = against.copy()
+    for i_char in range(len(ingress)):
+        droplist = list()
+        for i_word in range(len(matches)):
+            if matches[i_word][i_char] != ingress[i_char]:
+                droplist.append(i_word)
+        for i_word in droplist:
+            matches.pop(i_word)
+        if len(matches) == 0:
+            return (None, f"No matches found for {ingress}")
+        if len(matches) == 1:
+            return (matches.pop(), None)
+    return (None, f"Multiple matches found for \"{ingress}\": {'|'.join(matches)}")
+
+
 # Argument template: stat_kind by_prophet stat against_prophet stat
 def parse_argv1(raw_args: list, prophets: dict) -> dict:
     "Parse the basic argument array and complain if something's off"
@@ -170,17 +188,17 @@ def parse_argv1(raw_args: list, prophets: dict) -> dict:
     if len(raw_args) != 5:
         raise ValueError(f"Unexpected number of arguments: {len(raw_args)}")
     stat_kind, by_prophet, by_stat, against_prophet, against_stat = raw_args[:5]
-    if stat_kind in cardinal_stats:
-        arguments["stat_kind"] = stat_kind
-    else:
-        raise ValueError(f'"{stat_kind}" isn\'t a stat I know :<')
-    if by_prophet in prophets and against_prophet in prophets:
-        arguments["by_prophet"] = prophets[by_prophet]
-        arguments["against_prophet"] = prophets[against_prophet]
-    else:
-        raise ValueError(
-            f'Prophets "{by_prophet}" or "{against_prophet}" aren\'t the ones I know :<'
-        )
+    stat_kind = fuzzy_match(stat_kind, cardinal_stats)
+    by_prophet = fuzzy_match(by_prophet, prophets.keys())
+    against_prophet = fuzzy_match(against_prophet, prophets.keys())
+
+    if not stat_kind[0]:
+        raise ValueError(f"Trouble looking up Stat: {stat_kind[1]} :<")
+    if not by_prophet[0]:
+        raise ValueError(f"Trouble looking up Prophet: {by_prophet[1]} :<")
+    if not against_prophet[0]:
+        raise ValueError(f"Trouble looking up Prophet: {against_prophet[1]} :<")
+
     arguments["by_stat"] = int(by_stat)
     arguments["against_stat"] = int(against_stat)
 
