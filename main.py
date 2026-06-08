@@ -6,6 +6,7 @@ import typing
 import os
 import asyncio
 import discord
+import traceback
 from discord.ext import commands
 from dotenv import load_dotenv
 
@@ -55,7 +56,7 @@ class Prophet:
         self.stats.update(new_stats)
 
     def canonicalize_name(name: str):
-        '''Make a human-readable name into a code-suitable one'''
+        """Make a human-readable name into a code-suitable one"""
         return name.lower()
 
     def __repr__(self):
@@ -65,7 +66,7 @@ class Prophet:
         return f'Prophet "{self.name}" registered as "{self.cname}"{stat_spread}'
 
     def roll(self, prophet: typing.Self, stat_kind: str, stat: int) -> tuple:
-        '''Calculate actual random die roll results'''
+        """Calculate actual random die roll results"""
         n_rolls = 0
         rolls = list()
         explosions = 0
@@ -89,7 +90,7 @@ class Prophet:
         against_prophet: typing.Self,
         against_stat: int,
     ) -> str:
-        '''Batch and format a full dice roll'''
+        """Batch and format a full dice roll"""
         output = list()
         by_rolls = self.roll(by_prophet, stat_kind, by_stat)
         if len(by_rolls) == 0:
@@ -133,18 +134,18 @@ class Prophet:
 
 @bot.event
 async def on_ready():
-    '''Acknowledge Discord authorization in logs'''
+    """Acknowledge Discord authorization in logs"""
     log.info(f"Logged in as {bot.user}")
 
 
 @bot.command()
 async def ping(ctx):
-    '''Send a small ping message. To know I'm here.'''
+    """Send a small ping message. To know I'm here."""
     await ctx.send("Ping from Barkaru OwO")
 
 
 def load_quin_prophet_stats(path: str) -> dict:
-    '''Parse Quin\'s not-CSV file format and ingest prophets and their stats from it'''
+    """Parse Quin\'s not-CSV file format and ingest prophets and their stats from it"""
     prophets_stats = dict()
     with open(path) as file:
         for line in file.readlines():
@@ -195,7 +196,7 @@ async def roll(
     against_prophet: str,
     against_stat: str,
 ):
-    '''Roll the Aethertuned dice. See what fortune brings.'''
+    """Roll the Aethertuned dice. See what fortune brings."""
     try:
         argv = parse_argv1(
             (stat_kind, by_prophet, by_stat, against_prophet, against_stat), prophets
@@ -204,6 +205,7 @@ async def roll(
         await ctx.send(result)
     except Exception as exception:
         err_string = f"Error!\n{str(exception)}\nInvoked with:\n{argv}"
+        traceback.print_exception(exception)
         log.warning(err_string)
         await ctx.send(err_string)
 

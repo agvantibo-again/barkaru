@@ -5,7 +5,7 @@ Somewhat based on Armello. Reportedly
  - [x] Parse arguments v1 (stat prophet integer | prophet integer)
  - [x] Implement core roll logic
  - [ ] Add fuzzy parsing for strings
- - [ ] Make it actually work with Discord
+ - [x] Make it actually work with Discord
  - [ ] Implement inventory items and arguments v2
  - [ ] Implement static rolls result sprites
  - [ ] Implement animated rolls result sprites
