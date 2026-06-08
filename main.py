@@ -99,12 +99,12 @@ class Prophet:
             aggregate_line_0 = "You rolled"
             aggregate_line = aggregate_line_0
             for roll in by_rolls:
-                aggregate_line += f" {roll}"
+                aggregate_line += f":anim{roll}:"
                 log.debug(f"Comparing roll {roll} with {by_prophet.stats}")
                 if roll in by_prophet.stats.get(stat_kind):
-                    aggregate_line += f"... {random.choice(explosion_bites)}!"
+                    aggregate_line += f"... {random.choice(explosion_bites)}! "
             output.append(aggregate_line)
-            output.append(f"In total: {sum(by_rolls)}. Well done.")
+            output.append(f"In total: {sum(by_rolls)}.")
 
         return "\n".join(output)
 
