@@ -148,7 +148,7 @@ def load_quin_prophet_stats(path: str) -> dict:
     for prophet_name, stats_string in prophets_stats.items():
         statblock = dict()
         for i_stat in range(len(stats_string)):
-            statblock[cardinal_stats[i_stat]] = [int(stats_string[i_stat])]
+            statblock[cardinal_stats[i_stat]] = int(stats_string[i_stat])
         prophet_cname = Prophet.canonicalize_name(prophet_name)
         prophets[prophet_cname] = Prophet(prophet_name, prophet_cname, statblock)
 
