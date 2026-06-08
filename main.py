@@ -169,17 +169,14 @@ def fuzzy_match(ingress: str, against: list) -> tuple:
     matches = against.copy()
     for i_char in range(len(ingress)):
         droplist = list()
-        for i_word in range(len(matches)):
-            if (
-                len(matches[i_word]) <= i_char
-                or matches[i_word][i_char] != ingress[i_char]
-            ):
-                droplist.append(i_word)
-        matches = list(filter(lambda a: a not in droplist, matches))
+        for word in matches:
+            if len(word) <= i_char or word[i_char] != ingress[i_char]:
+                droplist.append(word)
+        matches = [m for m in matches if m not in droplist]
         if len(matches) == 0:
             return (None, f"No matches found for {ingress}")
         if len(matches) == 1:
-            return (matches.pop(), None)
+            return (matches[0], None)
     return (None, f"Multiple matches found for \"{ingress}\": {'|'.join(matches)}")
 
 
@@ -224,8 +221,7 @@ async def roll(
         result = prophets[argv["by_prophet"].cname].do_roll(**argv)
         await ctx.send(result)
     except Exception as exception:
-        err_string = f"Error!\n{str(exception)}\nInvoked with:\n{argv}"
-        traceback.print_exception(exception)
+        err_string = "".join(traceback.format_exception(exception))
         log.warning(err_string)
         await ctx.send(err_string)
 
