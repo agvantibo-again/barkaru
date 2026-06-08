@@ -228,6 +228,12 @@ async def roll(
         log.warning(err_string)
         await ctx.send(err_string)
 
+@bot.command()
+async def prophets(
+    ctx
+):
+    """Observe the Prophets 22 and their alignment"""
+    await ctx.send("\n" + "\n".join(map(str, prophets.values())))
 
 async def main():
     global prophets
