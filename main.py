@@ -89,8 +89,6 @@ class Prophet:
         by_prophet: typing.Self,
         stat_kind: str,
         by_stat: int,
-        against_prophet: typing.Self,
-        against_stat: int,
     ) -> str:
         """Batch and format a full dice roll"""
         output = list()
@@ -107,29 +105,6 @@ class Prophet:
                     aggregate_line += f"... {random.choice(explosion_bites)}!"
             output.append(aggregate_line)
             output.append(f"In total: {sum(by_rolls)}. Well done.")
-
-        if against_prophet.cname == "nihil":
-            against_rolls = [against_stat]
-            output.append(f"You're going up against at least a {against_stat}!")
-        else:
-            against_rolls = self.roll(against_prophet, stat_kind, against_stat)
-            if len(by_rolls) == 0:
-                output.append(f"They rolled nothing. They suck.")
-            else:
-                aggregate_line_0 = "They rolled"
-                aggregate_line = aggregate_line_0
-                for roll in against_rolls:
-                    aggregate_line += f" {roll}"
-                    if roll in by_prophet.stats.get(stat_kind):
-                        aggregate_line += f"... {random.choice(explosion_bites)}!"
-                output.append(aggregate_line)
-                output.append(f"In total: {sum(against_rolls)}")
-        if sum(by_rolls) > sum(against_rolls):
-            output.append(f"Victory! ({sum(by_rolls)} > {sum(against_rolls)})")
-        elif sum(by_rolls) < sum(against_rolls):
-            output.append(f"Defeat. ({sum(by_rolls)} < {sum(against_rolls)})")
-        else:
-            output.append(f"Evenly matched.")
 
         return "\n".join(output)
 
@@ -182,29 +157,24 @@ def fuzzy_match(ingress: str, against: list) -> tuple:
     return (None, f"Multiple matches found for \"{ingress}\": {'|'.join(matches)}")
 
 
-# Argument template: stat_kind by_prophet stat against_prophet stat
+# Argument template: stat_kind by_prophet stat
 def parse_argv1(raw_args: list, prophets: dict) -> dict:
     "Parse the basic argument array and complain if something's off"
     arguments = dict()
-    if len(raw_args) != 5:
+    if len(raw_args) != 3:
         raise ValueError(f"Unexpected number of arguments: {len(raw_args)}")
-    stat_kind, by_prophet, by_stat, against_prophet, against_stat = raw_args[:5]
+    stat_kind, by_prophet, by_stat = raw_args[:3]
     stat_kind = fuzzy_match(stat_kind, cardinal_stats)
     by_prophet = fuzzy_match(by_prophet, list(prophets.keys()))
-    against_prophet = fuzzy_match(against_prophet, list(prophets.keys()))
 
     if not stat_kind[0]:
         raise ValueError(f"Trouble looking up Stat: {stat_kind[1]} :<")
     if not by_prophet[0]:
         raise ValueError(f"Trouble looking up Prophet: {by_prophet[1]} :<")
-    if not against_prophet[0]:
-        raise ValueError(f"Trouble looking up Prophet: {against_prophet[1]} :<")
 
     arguments["stat_kind"] = stat_kind[0]
     arguments["by_prophet"] = prophets.get(by_prophet[0])
-    arguments["against_prophet"] = prophets.get(against_prophet[0])
     arguments["by_stat"] = int(by_stat)
-    arguments["against_stat"] = int(against_stat)
 
     return arguments
 
@@ -215,14 +185,10 @@ async def roll(
     stat_kind: str,
     by_prophet: str,
     by_stat: str,
-    against_prophet: str,
-    against_stat: str,
 ):
     """Roll the Aethertuned dice. See what fortune brings."""
     try:
-        argv = parse_argv1(
-            (stat_kind, by_prophet, by_stat, against_prophet, against_stat), prophets
-        )
+        argv = parse_argv1((stat_kind, by_prophet, by_stat), prophets)
         result = prophets[argv["by_prophet"].cname].do_roll(**argv)
         await ctx.send(result)
     except Exception as exception:
@@ -235,13 +201,13 @@ async def roll(
 async def prophets(ctx):
     """Observe the Prophets 22 and their alignment"""
     prophets_string = "\n".join(
-            [
-                "```",
-                f'The values are in canonical order: {" ".join(cardinal_stats)}',
-                f'{"\n".join(map(str, prophets.values()))}',
-                "```",
-            ]
-        )
+        [
+            "```",
+            f'The values are in canonical order: {" ".join(cardinal_stats)}',
+            f'{"\n".join(map(str, prophets.values()))}',
+            "```",
+        ]
+    )
     log.debug(prophets_string)
     log.debug(f"Length: {len(prophets_string)}")
     await ctx.send(prophets_string)
