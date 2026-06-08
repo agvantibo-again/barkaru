@@ -30,13 +30,18 @@ explosion_bites = [
     "Fortune glistens",
     "The Shroud observes",
 ]
-emotes = [
+emote_ids = [
     "1513519333698043944",
     "1513519290752700436",
     "1513519225501913138",
     "1513519145004568686",
     "1513511928184701068",
-    "1513497738321334283"
+    "1513497738321334283",
+]
+
+emotes = [
+    discord.PartialEmoji(animated=True, name=f"anim{i}", id=emote_ids[i])
+    for i in range(len(emote_ids))
 ]
 
 roll_limit = 22
@@ -108,7 +113,7 @@ class Prophet:
             aggregate_line_0 = "You rolled"
             aggregate_line = aggregate_line_0
             for roll in by_rolls:
-                aggregate_line += f"<:anim{roll}:{emotes[roll]}>"
+                aggregate_line += f" {emotes[roll]}"
                 log.debug(f"Comparing roll {roll} with {by_prophet.stats}")
                 if roll in by_prophet.stats.get(stat_kind):
                     aggregate_line += f"... {random.choice(explosion_bites)}! "
