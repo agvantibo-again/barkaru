@@ -170,7 +170,10 @@ def fuzzy_match(ingress: str, against: list) -> tuple:
     for i_char in range(len(ingress)):
         droplist = list()
         for i_word in range(len(matches)):
-            if len(matches[i_word]) <= i_char or matches[i_word][i_char] != ingress[i_char]:
+            if (
+                len(matches[i_word]) <= i_char
+                or matches[i_word][i_char] != ingress[i_char]
+            ):
                 droplist.append(i_word)
         matches = list(filter(lambda a: a not in droplist, matches))
         if len(matches) == 0:
@@ -188,8 +191,8 @@ def parse_argv1(raw_args: list, prophets: dict) -> dict:
         raise ValueError(f"Unexpected number of arguments: {len(raw_args)}")
     stat_kind, by_prophet, by_stat, against_prophet, against_stat = raw_args[:5]
     stat_kind = fuzzy_match(stat_kind, cardinal_stats)
-    by_prophet = fuzzy_match(by_prophet, prophets.keys())
-    against_prophet = fuzzy_match(against_prophet, prophets.keys())
+    by_prophet = fuzzy_match(by_prophet, list(prophets.keys()))
+    against_prophet = fuzzy_match(against_prophet, list(prophets.keys()))
 
     if not stat_kind[0]:
         raise ValueError(f"Trouble looking up Stat: {stat_kind[1]} :<")
