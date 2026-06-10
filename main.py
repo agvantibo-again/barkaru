@@ -30,19 +30,6 @@ explosion_bites = [
     "Fortune glistens",
     "The Shroud observes",
 ]
-emote_ids = [
-    "1513519333698043944",
-    "1513519290752700436",
-    "1513519225501913138",
-    "1513519145004568686",
-    "1513511928184701068",
-    "1513497738321334283",
-]
-
-emotes = [
-    discord.PartialEmoji(animated=True, name=f"anim{i}", id=emote_ids[i])
-    for i in range(len(emote_ids))
-]
 
 roll_limit = 22
 
@@ -113,7 +100,7 @@ class Prophet:
             aggregate_line_0 = "You rolled"
             aggregate_line = aggregate_line_0
             for roll in by_rolls:
-                aggregate_line += f" {emotes[roll]}"
+                aggregate_line += f" \{{stat_kind[0]}{roll}\}"
                 log.debug(f"Comparing roll {roll} with {by_prophet.stats}")
                 if roll in by_prophet.stats.get(stat_kind):
                     aggregate_line += f"... {random.choice(explosion_bites)}! "
@@ -202,8 +189,14 @@ async def roll(
 ):
     """Roll the Aethertuned dice. See what fortune brings."""
     try:
+        emotes_task = asyncio.create_task(ctx.guild.fetch_emojis())
         argv = parse_argv1((stat_kind, by_prophet, by_stat), prophets)
         result = prophets[argv["by_prophet"].cname].do_roll(**argv)
+
+        emotes = await emotes_task
+        emotes = {emote.name: str(emote) for emote in emotes}
+        result = result.format(**emotes_map)
+
         await ctx.send(result)
     except Exception as exception:
         err_string = "".join(traceback.format_exception(exception))
