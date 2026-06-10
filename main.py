@@ -95,12 +95,12 @@ class Prophet:
         else:
             aggregate_line_0 = "You rolled "
             aggregate_line = aggregate_line_0
-            aggregate_line += " ".join([f"{{{stat_kind[0]}{roll}}}" for roll in ])
+            aggregate_line += " ".join([f"{{{stat_kind[0]}{roll}}}" for roll in by_rolls[0]])
             for i_rolls in range(len(by_rolls) - 1):
                 aggregate_line += f"... {random.choice(explosion_bites)}!"
                 output.append(aggregate_line)
                 aggregate_line = aggregate_line_0
-                aggregate_line += " ".join([f"{{x{roll}}}" for roll in ])
+                aggregate_line += " ".join([f"{{x{roll}}}" for roll in by_rolls[i_rolls]])
             output.append(aggregate_line)
             output.append(f"In total: {sum(by_rolls)}.")
 
