@@ -195,10 +195,9 @@ async def roll(
 
         emotes = await emotes_task
         emotes = {emote.name: str(emote) for emote in emotes}
-        result = result.format(**emotes)
 
         for line in result:
-            await ctx.send(line)
+            await ctx.send(line.format(**emotes))
     except Exception as exception:
         err_string = "".join(traceback.format_exception(exception))
         log.warning(err_string)
