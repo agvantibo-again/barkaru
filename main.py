@@ -130,7 +130,7 @@ class Prophet:
                                 if roll not in by_prophet.stats[stat_kind]
                                 else f"{{x{roll}}}"
                             )
-                            for roll in by_rolls[0]
+                            for roll in by_rolls[i_rolls]
                         ]
                     )
                     total += sum(by_rolls[i_rolls])
