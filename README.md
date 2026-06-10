@@ -4,6 +4,9 @@ Somewhat based on Armello. Reportedly
 #### 1.0.0!
 Mostly working! It has very nice error reporting now and the fuzzy matching seems to be idiot (me) proof.
 
+#### 1.2.0!
+Batched rolls, botched rolls (finally made limits work) and newgen emotes.
+
 ##### Roadmap:
  - [x] Parse arguments v1 (stat prophet integer | prophet integer)
  - [x] Implement core roll logic
@@ -13,3 +16,4 @@ Mostly working! It has very nice error reporting now and the fuzzy matching seem
  - [ ] Implement inventory items and arguments v2
  - [ ] ~~Implement static rolls result sprites~~
  - [x] Implement animated rolls result sprites
+ - [x] Roll in batches
