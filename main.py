@@ -108,7 +108,14 @@ class Prophet:
             aggregate_line_0 = "You rolled "
             aggregate_line = aggregate_line_0
             aggregate_line += " ".join(
-                [f"{{{stat_kind[0]}{roll}}}" for roll in by_rolls[0]]
+                [
+                    (
+                        f"{{{stat_kind[0]}{roll}}}"
+                        if roll not in by_prophet.stats[stat_kind]
+                        else f"{{x{roll}}}"
+                    )
+                    for roll in by_rolls[0]
+                ]
             )
             total += sum(by_rolls[0])
             if len(by_rolls) > 1:
@@ -117,7 +124,14 @@ class Prophet:
                     output.append(aggregate_line)
                     aggregate_line = aggregate_line_0
                     aggregate_line += " ".join(
-                        [f"{{x{roll}}}" for roll in by_rolls[i_rolls]]
+                        [
+                            (
+                                f"{{{stat_kind[0]}{roll}}}"
+                                if roll not in by_prophet.stats[stat_kind]
+                                else f"{{x{roll}}}"
+                            )
+                            for roll in by_rolls[0]
+                        ]
                     )
                     total += sum(by_rolls[i_rolls])
             output.append(aggregate_line)
