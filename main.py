@@ -100,7 +100,7 @@ class Prophet:
             aggregate_line_0 = "You rolled"
             aggregate_line = aggregate_line_0
             for roll in by_rolls:
-                aggregate_line += f" \{{stat_kind[0]}{roll}\}"
+                aggregate_line += f" {{{stat_kind[0]}{roll}}}"
                 log.debug(f"Comparing roll {roll} with {by_prophet.stats}")
                 if roll in by_prophet.stats.get(stat_kind):
                     aggregate_line += f"... {random.choice(explosion_bites)}! "
@@ -195,7 +195,7 @@ async def roll(
 
         emotes = await emotes_task
         emotes = {emote.name: str(emote) for emote in emotes}
-        result = result.format(**emotes_map)
+        result = result.format(**emotes)
 
         await ctx.send(result)
     except Exception as exception:
