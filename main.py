@@ -73,13 +73,22 @@ class Prophet:
         n_rolls = 0
         rolls = list()
         pending_rolls = stat
-        while n_rolls < roll_limit and pending_rolls:
+        while n_rolls <= roll_limit and pending_rolls:
+            if n_rolls + pending_rolls >= roll_limit:
+                pending_rolls -= roll_limit - pending_rolls
             n_rolls += pending_rolls
-            rolls.append(tuple( [
-                random.randint(0, prophet.die_sides - 1)
-                for roll in range(pending_rolls)
-            ]))
+            rolls.append(
+                tuple(
+                    [
+                        random.randint(0, prophet.die_sides - 1)
+                        for roll in range(pending_rolls)
+                    ]
+                )
+            )
+            log.debug(f"Rolled {rolls[-1]}")
             pending_rolls = rolls[-1].count(prophet.stats[stat_kind])
+            log.debug(f"Want to roll {pending_rolls} more")
+
         return tuple(rolls)
 
     def do_roll(
@@ -97,16 +106,22 @@ class Prophet:
             total = 0
             aggregate_line_0 = "You rolled "
             aggregate_line = aggregate_line_0
-            aggregate_line += " ".join([f"{{{stat_kind[0]}{roll}}}" for roll in by_rolls[0]])
+            aggregate_line += " ".join(
+                [f"{{{stat_kind[0]}{roll}}}" for roll in by_rolls[0]]
+            )
             total += sum(by_rolls[0])
             if len(by_rolls) > 1:
                 for i_rolls in range(1, len(by_rolls)):
                     aggregate_line += f"... {random.choice(explosion_bites)}!"
                     output.append(aggregate_line)
                     aggregate_line = aggregate_line_0
-                    aggregate_line += " ".join([f"{{x{roll}}}" for roll in by_rolls[i_rolls]])
+                    aggregate_line += " ".join(
+                        [f"{{x{roll}}}" for roll in by_rolls[i_rolls]]
+                    )
                     total += sum(by_rolls[i_rolls])
             output.append(aggregate_line)
+            if sum(map(len, by_rolls)) >= roll_limit:
+                output.append(f"[TRANSMISSION INTERRUPTED]")
             output.append(f"In total: {total}.")
 
         return output
