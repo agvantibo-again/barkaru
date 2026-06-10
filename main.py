@@ -75,7 +75,7 @@ class Prophet:
         pending_rolls = stat
         while n_rolls <= roll_limit and pending_rolls:
             if n_rolls + pending_rolls >= roll_limit:
-                pending_rolls -= roll_limit - pending_rolls
+                pending_rolls += roll_limit - (pending_rolls + n_rolls)
             n_rolls += pending_rolls
             rolls.append(
                 tuple(
