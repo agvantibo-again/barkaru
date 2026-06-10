@@ -86,7 +86,8 @@ class Prophet:
                 )
             )
             log.debug(f"Rolled {rolls[-1]}")
-            pending_rolls = rolls[-1].count(prophet.stats[stat_kind])
+            for stat in prophet.stats[stat_kind]:
+                pending_rolls = rolls[-1].count(stat)
             log.debug(f"Want to roll {pending_rolls} more")
 
         return tuple(rolls)
