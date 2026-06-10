@@ -72,17 +72,13 @@ class Prophet:
         """Calculate actual random die roll results"""
         n_rolls = 0
         rolls = list()
-        explosions = 0
-        exploded = False
-        while n_rolls < roll_limit and stat > 0:
-            rolls.append(random.randint(0, prophet.die_sides - 1))
-            stat -= 1
-            if rolls[-1] in prophet.stats.get(stat_kind):
-                exploded = True
-                stat += 1
-            else:
-                exploded = False
-            n_rolls += 1
+        pending_rolls = stat
+        while n_rolls < roll_limit and pending_rolls:
+            rolls.append(tuple( [
+                random.randint(0, prophet.die_sides - 1)
+                for roll in range(pending_rolls)
+            ]))
+            pending_rolls = rolls[-1].count(prophet.stats[stat_kind])
         return tuple(rolls)
 
     def do_roll(
@@ -90,24 +86,25 @@ class Prophet:
         by_prophet: typing.Self,
         stat_kind: str,
         by_stat: int,
-    ) -> str:
+    ) -> list:
         """Batch and format a full dice roll"""
         output = list()
         by_rolls = self.roll(by_prophet, stat_kind, by_stat)
         if len(by_rolls) == 0:
             output.append(f"You rolled nothing. You suck at {stat_kind}.")
         else:
-            aggregate_line_0 = "You rolled"
+            aggregate_line_0 = "You rolled "
             aggregate_line = aggregate_line_0
-            for roll in by_rolls:
-                aggregate_line += f" {{{stat_kind[0]}{roll}}}"
-                log.debug(f"Comparing roll {roll} with {by_prophet.stats}")
-                if roll in by_prophet.stats.get(stat_kind):
-                    aggregate_line += f"... {random.choice(explosion_bites)}! "
+            aggregate_line += " ".join([f"{{{stat_kind[0]}{roll}}}" for roll in ])
+            for i_rolls in range(len(by_rolls) - 1):
+                aggregate_line += f"... {random.choice(explosion_bites)}!"
+                output.append(aggregate_line)
+                aggregate_line = aggregate_line_0
+                aggregate_line += " ".join([f"{{x{roll}}}" for roll in ])
             output.append(aggregate_line)
             output.append(f"In total: {sum(by_rolls)}.")
 
-        return "\n".join(output)
+        return output
 
 
 @bot.event
@@ -197,7 +194,8 @@ async def roll(
         emotes = {emote.name: str(emote) for emote in emotes}
         result = result.format(**emotes)
 
-        await ctx.send(result)
+        for line in result:
+            await ctx.send(line)
     except Exception as exception:
         err_string = "".join(traceback.format_exception(exception))
         log.warning(err_string)
