@@ -10,7 +10,7 @@ import traceback
 from discord.ext import commands
 from dotenv import load_dotenv
 
-cardinal_stats = [
+cardinal_stats = (
     "exogrit",
     "shadelust",
     "neocognition",
@@ -18,19 +18,8 @@ cardinal_stats = [
     "paralleloquence",
     "chronacumen",
     "aethertune",
-]
-explosion_bites = [
-    "Fate emboldens",
-    "Harmony befalls the Stars",
-    "Polari gleams",
-    "Lundara approves",
-    "A Chord resounds",
-    "The Veil beckons",
-    "Destiny interferes",
-    "Fortune glistens",
-    "The Shroud observes",
-]
-
+)
+explosion_barks = list()
 roll_limit = 22
 
 load_dotenv()
@@ -121,7 +110,7 @@ class Prophet:
             total += sum(by_rolls[0])
             if len(by_rolls) > 1:
                 for i_rolls in range(1, len(by_rolls)):
-                    aggregate_line += f"... {random.choice(explosion_bites)}!"
+                    aggregate_line += f"... {random.choice(explosion_barks)}!"
                     output.append(aggregate_line)
                     aggregate_line = aggregate_line_0
                     aggregate_line += " ".join(
@@ -137,7 +126,7 @@ class Prophet:
                     total += sum(by_rolls[i_rolls])
             output.append(aggregate_line)
             if sum(map(len, by_rolls)) >= roll_limit:
-                output.append(f"[TRANSMISSION INTERRUPTED]")
+                output.append("[TRANSMISSION INTERRUPTED]")
             output.append(f"In total: {total}.")
 
         return output
@@ -172,6 +161,14 @@ def load_quin_prophet_stats(path: str) -> dict:
         prophets[prophet_cname] = Prophet(prophet_name, prophet_cname, statblock)
 
     return prophets
+
+
+def load_explosion_barks(path: str, array: list):
+    """Parse a text file line by line and ingest explosion barks"""
+    with open(path) as file:
+        for line in file.readlines():
+            if "#" not in line:
+                array.append(line)
 
 
 def fuzzy_match(ingress: str, against: list) -> tuple:
@@ -260,6 +257,8 @@ async def main():
     prophets = load_quin_prophet_stats("prophets.txt")
     prophets["nihil"] = Prophet.__new__(Prophet)
     log.info(f"Loaded {len(prophets)} prophets!")
+    load_explosion_barks("explosions.txt", explosion_barks)
+    log.info(f"Loaded {len(explosion_barks)} explosion barks!")
     for prophet in prophets.values():
         log.debug(prophet)
 
