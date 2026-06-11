@@ -100,6 +100,7 @@ class Prophet:
     ) -> list:
         """Batch and format a full dice roll"""
         output = list()
+        output.append(f"### {stat_kind.upper()} [*{by_prophet.name}*]")
         by_rolls = self.roll(by_prophet, stat_kind, by_stat)
         if len(by_rolls) == 0:
             output.append(f"You rolled nothing. You suck at {stat_kind}.")
