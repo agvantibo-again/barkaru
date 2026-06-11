@@ -168,7 +168,7 @@ def load_explosion_barks(path: str, array: list):
     with open(path) as file:
         for line in file.readlines():
             if "#" not in line:
-                array.append(line)
+                array.append(line.removesuffix("\n"))
 
 
 def fuzzy_match(ingress: str, against: tuple) -> tuple:
