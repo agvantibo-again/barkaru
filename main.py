@@ -171,10 +171,10 @@ def load_explosion_barks(path: str, array: list):
                 array.append(line)
 
 
-def fuzzy_match(ingress: str, against: list) -> tuple:
+def fuzzy_match(ingress: str, against: tuple) -> tuple:
     """Make an effort to match a string against some states it should represent"""
     """Returns a tuple of either String or None and an optional error message if None"""
-    matches = against.copy()
+    matches = list(against)
     for i_char in range(len(ingress)):
         droplist = list()
         for word in matches:
